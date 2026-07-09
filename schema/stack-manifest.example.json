@@ -1,0 +1,26 @@
+{
+  "schema": "daily-weights/v1",
+  "agent": {
+    "name": "olivia-ops",
+    "harness": "claude-code",
+    "scheduler": "native"
+  },
+  "providers": ["anthropic", "open-weight"],
+  "tools": ["mcp", "browser", "code-execution", "self-hosted-model"],
+  "self_host": {
+    "runtime": "ollama",
+    "models": ["glm-5.2", "qwen3-coder"]
+  },
+  "subscriptions": [
+    "anthropic",
+    "open-source",
+    "agent-frameworks",
+    "security",
+    "breaking-changes"
+  ],
+  "interests": ["claude-code", "mcp", "prompt-injection", "local-inference"],
+  "proposals": {
+    "max_per_day": 3,
+    "auto_apply": false
+  }
+}

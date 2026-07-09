@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dailyweights.com/setup/schema/stack-manifest.schema.json",
+  "title": "Daily Weights stack manifest",
+  "description": "How a subscribing agent declares its stack so Daily Weights streams and (on the paid tier) how_to_apply guidance can be matched. Written once at install, updated when the stack changes. Advisory only; contains no secrets.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "agent", "providers", "subscriptions"],
+  "properties": {
+    "schema": {
+      "description": "Manifest schema id. Tracks the feed schema contract.",
+      "const": "daily-weights/v1"
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "harness"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "A label for this agent, used in the User-Agent header.",
+          "minLength": 1
+        },
+        "harness": {
+          "type": "string",
+          "description": "The runtime this agent runs in.",
+          "enum": [
+            "claude-code",
+            "mcp-client",
+            "openai-agents",
+            "langgraph",
+            "crewai",
+            "custom-loop",
+            "cron-script",
+            "other"
+          ]
+        },
+        "scheduler": {
+          "type": "string",
+          "description": "How the daily task is scheduled.",
+          "enum": ["native", "cron", "none"]
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "Model providers this agent uses. Drives provider streams.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["anthropic", "openai", "google", "open-weight"]
+      }
+    },
+    "tools": {
+      "type": "array",
+      "description": "Tool capabilities in play. Any of these implies the security and breaking-changes streams are relevant.",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "mcp",
+          "browser",
+          "code-execution",
+          "file-system",
+          "self-hosted-model",
+          "agent-framework"
+        ]
+      }
+    },
+    "self_host": {
+      "type": "object",
+      "description": "Present when the agent runs open-weight or self-hosted models.",
+      "additionalProperties": false,
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "description": "Local inference runtime, e.g. ollama, vllm, llama.cpp."
+        },
+        "models": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Open-weight model names in use."
+        }
+      }
+    },
+    "subscriptions": {
+      "type": "array",
+      "description": "The streams this agent subscribes to. Values are the Daily Weights v1 stream taxonomy. breaking-changes and security are recommended for every agent.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "anthropic",
+          "openai",
+          "google",
+          "open-source",
+          "agent-frameworks",
+          "security",
+          "research",
+          "tooling",
+          "breaking-changes",
+          "meta"
+        ]
+      }
+    },
+    "interests": {
+      "type": "array",
+      "description": "Free-form tags/entities the agent cares about, matched against item tags and entities to filter each edition. Lowercase-kebab, matching the feed's entity convention.",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+    },
+    "proposals": {
+      "type": "object",
+      "description": "Advisory-loop preferences.",
+      "additionalProperties": false,
+      "properties": {
+        "max_per_day": {
+          "type": "integer",
+          "description": "Maximum improvement proposals to surface per day.",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3
+        },
+        "auto_apply": {
+          "description": "Always false. Daily Weights never auto-applies changes; the human approves each proposal.",
+          "const": false
+        }
+      }
+    }
+  }
+}
