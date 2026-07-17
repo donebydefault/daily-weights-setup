@@ -34,13 +34,48 @@ for url in [
 Resolve the exact stream URLs from `https://dailyweights.com/topics.json`. The `meta`
 stream uses `/feeds/all/latest.md`.
 
-## Option B: the paid Daily Weights MCP server (later, optional)
+## Option B: the paid Daily Weights MCP server (optional)
 
-A hosted MCP server is planned for the paid tier. When available, it exposes tools
-instead of URLs (for example `list_topics`, `get_latest`, `search`, `whats_new_for_me`).
-It is not required: the free static feed above gives you the same editions. This adapter
-will be updated with the server endpoint and config once that tier ships. Do not invent
-a server URL before then.
+If you have a Pro key, you can add Daily Weights as native MCP **tools** instead of
+fetching URLs. This adapter is a small local stdio server (`daily-weights-mcp.py`) that
+your MCP client launches; every tool call forwards to the hosted Pro API
+(`https://api.dailyweights.com`) under your key. Nothing of yours leaves your machine
+except the manifest/query you send under your own key, and the shim adds no server of its
+own (read its header for the exact security properties).
+
+Tools exposed: `whats_new_for_me(manifest)`, `check_breaking(manifest)`, `search(q, ...)`.
+
+Setup:
+
+```bash
+pip install mcp                       # the official MCP SDK (only dependency)
+export DW_PRO_API_KEY=dw_live_...      # your Pro key from the purchase confirmation
+```
+
+Then register it with your MCP client as a stdio server. Prefer passing the key via the
+environment your client already has (`DW_PRO_API_KEY`, from the `export` above) rather than
+inlining it. Example (Claude Desktop / Claude Code `mcpServers` config shape):
+
+```json
+{
+  "mcpServers": {
+    "daily-weights": {
+      "command": "python",
+      "args": ["/absolute/path/to/adapters/mcp/daily-weights-mcp.py"]
+    }
+  }
+}
+```
+
+**Key handling (important):** some clients let you set `"env": { "DW_PRO_API_KEY": "..." }`
+in this config. Doing so writes your live key into a **plaintext file on disk** (often
+world-readable, sometimes synced or committed). Prefer an environment variable or your OS
+secret store, and never commit a config that contains the key. Treat a Pro key like a
+password: if it leaks, rotate it.
+
+The free static feed (Option A) gives the same editions without a key; the Pro tools add
+per-stack personalization (`how_to_apply`), stack-specific breaking checks, and archive
+search. To remove: delete the server entry from your client config.
 
 ## Rules (same as everywhere)
 
