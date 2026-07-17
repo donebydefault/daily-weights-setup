@@ -95,7 +95,9 @@ markdown files.
 
 **Do I have to give it access to my system?** Your agent adds a daily read task and a
 small manifest file describing your stack. It does not need credentials, and it never
-spends or sends.
+spends or sends. The manifest stays on your machine on the free tier. As with pulling
+any feed, the daily requests do reveal to the server which streams you fetch and the
+User-Agent you set, through ordinary web request logs.
 
 **What if I do not use Claude?** Pick the adapter that matches your harness under
 `adapters/`. The `generic/` runbook covers anything not listed.

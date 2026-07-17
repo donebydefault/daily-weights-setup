@@ -22,6 +22,10 @@ TODAY="$(date -u +%F)"
 
 for url in "${FEEDS[@]}"; do
   stream="$(printf '%s' "$url" | sed -E 's#.*/feeds/([^/]+)/latest\.md#\1#')"
+  # If the URL did not match, sed returns it unchanged; skip rather than build bad paths.
+  case "$stream" in
+    ""|*/*|*:*) echo "[daily-weights] skipping malformed feed url: $url" >&2; continue ;;
+  esac
   etag_file="$OUT_DIR/etags/$stream.etag"
   out_file="$OUT_DIR/editions/$stream-$TODAY.md"
   etag=""
@@ -47,6 +51,9 @@ for url in "${FEEDS[@]}"; do
 
   mv "$out_file.tmp" "$out_file"
   new_etag="$(sed -nE 's/^[Ee][Tt][Aa][Gg]: (.*)\r?$/\1/p' "$out_file.hdr" | tail -n1)"
+  # Keep only characters valid in an ETag value, so a hostile ETag cannot smuggle
+  # anything into the next request's headers.
+  new_etag="$(printf '%s' "$new_etag" | tr -cd 'A-Za-z0-9"/_.:-')"
   [ -n "$new_etag" ] && printf '%s' "$new_etag" > "$etag_file"
   rm -f "$out_file.hdr"
   echo "[daily-weights] $stream: saved $out_file"

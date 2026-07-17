@@ -1,7 +1,7 @@
 {
   "schema": "daily-weights/v1",
   "agent": {
-    "name": "olivia-ops",
+    "name": "my-agent",
     "harness": "claude-code",
     "scheduler": "native"
   },
@@ -9,7 +9,7 @@
   "tools": ["mcp", "browser", "code-execution", "self-hosted-model"],
   "self_host": {
     "runtime": "ollama",
-    "models": ["glm-5.2", "qwen3-coder"]
+    "models": ["llama3.1", "qwen2.5-coder"]
   },
   "subscriptions": [
     "anthropic",

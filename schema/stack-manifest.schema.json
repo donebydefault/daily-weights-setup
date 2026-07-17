@@ -18,8 +18,10 @@
       "properties": {
         "name": {
           "type": "string",
-          "description": "A label for this agent, used in the User-Agent header.",
-          "minLength": 1
+          "description": "A label for this agent, used in the User-Agent header. Printable ASCII only, no spaces or control characters (it becomes a header value).",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[\\u0021-\\u007e]+$"
         },
         "harness": {
           "type": "string",
